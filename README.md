@@ -98,6 +98,20 @@ It’s important to note that we are not proposing any new web API surface, but 
 
 Today, using FedCM, RPs can call FedCM to establish a persistent cross-site connection between themselves and specific IDPs.
 
+```javascript
+// In RP top-level document, where RP and IDP are cross-site:
+
+// Ensure FedCM permission has been granted.
+const cred = await navigator.credentials.get({
+  identity: {
+    providers: [{
+      // normal IDP config, elided here.
+    }],
+  },
+  mediation: 'optional', // default mediation mode
+});
+```
+
 On initial use, this will prompt the user for permission via sign-in prompt mediated by the browser. The RP will use the FedCM API to sign-in the user (if needed), which creates the "connection" between the RP and IDP in the `connected accounts set` internally. This connection is keyed by the RP origin (the top-level origin), the IDP origin, the origin of the embedder when used in an iframe, and the account identifier.
 
 As a result, cross-site credentials are returned and future invocations of `navigator.credentials.get() `under the same set of keys will not require browser mediation / user permission.
@@ -117,6 +131,27 @@ This comes without additional user activation or prior top-level user interactio
 
 Instead, the `document.requestStorageAccess()`  call would set the environment’s [has storage access](https://privacycg.github.io/storage-access/#environment-has-storage-access) flag to true (i.e. [processing the FedCM grant as a permission state](https://privacycg.github.io/storage-access/#the-document-object:~:text=Let-,process%20permission%20state,-be%20an%20algorithm)), granting the iframe document access to cross-site cookies.
 
+```javascript
+// In RP top-level document, where RP and IDP are cross-site:
+
+// Ensure FedCM permission has been granted.
+const cred = await navigator.credentials.get({
+  identity: {
+    providers: [{
+      // normal IDP config, elided here.
+    }],
+  },
+  mediation: 'optional',
+});
+
+// In an embedded IDP iframe:
+
+// No user gesture is needed to call this, and the call will be auto-granted.
+await document.requestStorageAccess();
+// This returns “true”.
+const hasAccess = await document.hasStorageAccess();
+```
+
 This same check may be performed by proposed SAA extensions such as [requestStorageAccessFor](https://github.com/privacycg/requestStorageAccessFor) and [Storage Access Headers](https://github.com/cfredric/storage-access-headers) to enable additional flexibility for web developers.
 
 
@@ -131,6 +166,27 @@ This restriction is not needed for SAA, as the information it mediates comes fro
 There are still attacks (such as CSRF and click-jacking) and cross-site leaks which try to take advantage of this credentialed state without directly reading it. SAA, through its explicit opt-in mechanisms, puts embed developers at a much lower risk of being exposed to such an attack.
 
 Although there is ostensibly little privacy or security benefit as shown above, with this proposal, we make it possible for the FedCM and SAA integration to honor the stricter scope of FedCM. Put differently, `document.requestStorageAccess() `auto-grants could be restricted to contexts in which RP and IDP are same-origin to their entries in the `connected accounts set`.
+
+```javascript
+// In top-level rp.example:
+
+// Ensure FedCM permission has been granted.
+const credential = await navigator.credentials.get({
+  identity: {
+    providers: [{
+      configURL: "https://accounts.idp.example/manifest.json",
+      clientId: "123",
+    }]
+  }
+});
+
+// In an embedded accounts.idp.example iframe, this call will automatically grant.
+await document.requestStorageAccess();
+
+
+// In an embedded idp.example iframe, should this automatically grant as well?
+await document.requestStorageAccess();
+```
 
 The result of that choice would be that users could encounter situations where an embedded call to `document.requestStorageAccess()`is not automatically granted despite a FedCM grant being present for a (top-level site, embed site) pair (and the user having seen and accepted the FedCM prompt).
 
