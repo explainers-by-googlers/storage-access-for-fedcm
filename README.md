@@ -45,7 +45,7 @@ Where there are no negative implications for user privacy and security, we propo
 
 ## Motivation
 
-[FedCM](https://fedidcg.github.io/FedCM/) is an API that mediates federated user identity flows through the application of (ideally) well-understood, purpose-driven user interfaces. Using the `navigator.credentials` API, it exposes a high-entropy user identifier (token) from an IdP to an RP.
+[FedCM](https://w3c-fedid.github.io/FedCM/) is an API that mediates federated user identity flows through the application of (ideally) well-understood, purpose-driven user interfaces. Using the `navigator.credentials` API, it exposes a high-entropy user identifier (token) from an IdP to an RP.
 
 This kind of token based authentication/authorization is commonly used in federated identity flows, which FedCM intends to address. Other login schemes, particularly for Single-Sign-On (SSO), rely on the presence of (cross-site) cookies as explained in the examples below.
 
@@ -157,7 +157,7 @@ This same check may be performed by proposed SAA extensions such as [requestStor
 
 ### Dealing with scope differences
 
-One complication to this idea is the fact that FedCM is scoped by origin, while SAA grants are scoped to site. FedCM also [differs in its permission keying](https://fedidcg.github.io/FedCM/#issue-d2fd6198) (which is to be specified). While storage-access permissions are keyed by (top-level, embed), FedCM grants are keyed by (top-level, embedder (RP), IDP).
+One complication to this idea is the fact that FedCM is scoped by origin, while SAA grants are scoped to site. FedCM also [differs in its permission keying](https://w3c-fedid.github.io/FedCM/#issue-d2fd6198) (which is to be specified). While storage-access permissions are keyed by (top-level, embed), FedCM grants are keyed by (top-level, embedder (RP), IDP).
 
 This decision makes sense for FedCM as the tokens it mediates are directly returned to the caller of `navigator.credentials.get()`, and as such should be same-origin restricted by default. Additionally, merely double-keying by (RP, IDP) would allow an attacker iframe embedded in rp.example extract information about an adjacent idp.example using FedCM.
 
@@ -215,7 +215,7 @@ In the end, option 3 could prevent developers from building useful cross-site in
 
 ### Interaction with Permissions Policy
 
-As explained in a lot of detail in the [Privacy Considerations](#privacy-considerations), an important property of this proposal is that it does not regress on the existing privacy guarantees of the FedCM API. One such guarantee is that the RP stays in control over when an IdP can access cross-site information via tokens through calling navigator.credentials.get(). This happens via the ["identity-credentials-get" Permissions Policy](https://fedidcg.github.io/FedCM/#permissions-policy-integration), which requires an opt-in by the RP.
+As explained in a lot of detail in the [Privacy Considerations](#privacy-considerations), an important property of this proposal is that it does not regress on the existing privacy guarantees of the FedCM API. One such guarantee is that the RP stays in control over when an IdP can access cross-site information via tokens through calling navigator.credentials.get(). This happens via the ["identity-credentials-get" Permissions Policy](https://w3c-fedid.github.io/FedCM/#permissions-policy-integration), which requires an opt-in by the RP.
 
 To restrict storage access to only succeed when an IdP would be otherwise able to access cross-site credentials via navigator.credentials.get(), we propose that **both** the "identity-credentials-get" permission policy and the "storage-access" permission policy will be considered by the storage access integration.
 
