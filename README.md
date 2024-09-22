@@ -1,3 +1,5 @@
+**This repository is archived, work has moved to [Privacy CG](https://github.com/privacycg), see the [new explainer](https://github.com/privacycg/storage-access/blob/main/explainers/storage-access-for-fedcm.md).**
+
 # FedCM as a trust signal for the Storage Access API
 
 This proposal is an early design sketch by the Chrome Privacy Sandbox team to describe the problem below and solicit
